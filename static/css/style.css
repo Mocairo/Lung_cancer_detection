@@ -1,0 +1,123 @@
+html {
+    height: 100%;
+}
+
+/* 全局样式和背景 */
+body.auth-bg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #0d1a3a; /* Dark blue background */
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(120, 113, 222, 0.2), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.2), transparent 40%);
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+/* 认证页面的卡片布局 */
+.auth-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.auth-card .logo {
+    margin-bottom: 1.5rem;
+}
+
+.auth-card .logo img {
+    max-height: 50px;
+}
+
+.auth-card h2 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.auth-card .subtitle {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+/* 表单样式 */
+.form-label {
+    text-align: left;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.auth-footer {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 1rem 0 0;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* 通用页面布局 */
+body.main-bg {
+    background-color: #f8f9fa;
+}
+
+.main-header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    padding: 1rem 0;
+} 
+
+/* 报告页面的卡片样式 */
+.card {
+    border: none;
+    border-radius: 0.75rem;
+}
+
+.card.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+}
+
+.card-header {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    font-weight: 500;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.badge {
+    font-size: 0.9em;
+    font-weight: 500;
+} 

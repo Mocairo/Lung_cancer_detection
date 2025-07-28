@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% macro render_nodule_change(change, unit='%') %}
+    {% if change > 10 %}
+        <span class="text-danger fw-bold">↑ {{ "%.1f"|format(change) }}{{ unit }}</span>
+    {% elif change < -10 %}
+        <span class="text-success fw-bold">↓ {{ "%.1f"|format(change|abs) }}{{ unit }}</span>
+    {% else %}
+        <span class="text-muted">→ {{ "%.1f"|format(change) }}{{ unit }}</span>
+    {% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- 页眉 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">对比分析报告</h2>
+        <a href="{{ url_for('main.health_profile') }}" class="btn btn-outline-secondary">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            返回健康档案
+        </a>
+    </div>
+
+    <!-- 对比摘要 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-center bg-light mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">对比摘要</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text fw-bold fs-5">{{ comparison.summary }}</p>
+                    <p class="card-text"><small class="text-muted">正在比较 {{ report1.timestamp.strftime('%Y-%m-%d') }} 的扫描与 {{ report2.timestamp.strftime('%Y-%m-%d') }} 的扫描。</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 匹配的结节详情 -->
+    {% if comparison.matched_pairs %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">匹配的结节详情</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">配对ID</th>
+                            <th scope="col">体积 (mm³)</th>
+                            <th scope="col">体积变化</th>
+                            <th scope="col">恶性肿瘤概率</th>
+                            <th scope="col">概率变化</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pair in comparison.matched_pairs %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">#{{ pair.nodule1.lesion_id }} → #{{ pair.nodule2.lesion_id }}</span>
+                            </td>
+                            <td>{{ "%.1f"|format(pair.nodule1.size_mm3) }} → {{ "%.1f"|format(pair.nodule2.size_mm3) }}</td>
+                            <td>{{ render_nodule_change(pair.volume_growth_percent) }}</td>
+                            <td>{{ "%.1f%%"|format(pair.nodule1.tumor_malignancy_prob * 100) }} → {{ "%.1f%%"|format(pair.nodule2.tumor_malignancy_prob * 100) }}</td>
+                            <td>{{ render_nodule_change(pair.tumor_prob_change * 100) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- 未匹配的结节 -->
+    <div class="row g-4">
+        <!-- 新增结节 -->
+        <div class="col-md-6">
+            {% if comparison.new_nodules %}
+            <div class="card shadow-sm">
+                 <div class="card-header">
+                    <h5 class="mb-0">新增结节 <span class="badge bg-warning text-dark">{{ comparison.new_nodules|length }}</span></h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for nodule in comparison.new_nodules %}
+                    <li class="list-group-item">
+                        <strong>结节 #{{ nodule.lesion_id }}</strong>: 
+                        体积: {{ "%.1f"|format(nodule.size_mm3) }} mm³, 
+                        恶性肿瘤概率: {{ "%.1f%%"|format(nodule.tumor_malignancy_prob * 100) }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        <!-- 消失的结节 -->
+        <div class="col-md-6">
+            {% if comparison.disappeared_nodules %}
+            <div class="card shadow-sm">
+                 <div class="card-header">
+                    <h5 class="mb-0">消失的结节 <span class="badge bg-secondary">{{ comparison.disappeared_nodules|length }}</span></h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                     {% for nodule in comparison.disappeared_nodules %}
+                    <li class="list-group-item">
+                        <strong>结节 #{{ nodule.lesion_id }}</strong>: 
+                        体积: {{ "%.1f"|format(nodule.size_mm3) }} mm³, 
+                        恶性肿瘤概率: {{ "%.1f%%"|format(nodule.tumor_malignancy_prob * 100) }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

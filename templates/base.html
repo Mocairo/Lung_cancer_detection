@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }} - 肺癌AI筛查</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  </head>
+  <body class="{{ body_class|default('main-bg') }}">
+
+    {% block header %}
+        {% if current_user.is_authenticated %}
+        <header class="main-header">
+            <div class="container d-flex justify-content-between align-items-center">
+                <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                    <!-- Placeholder for a logo image -->
+                    <strong>肺部AI筛查</strong>
+                </a>
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                <li class="nav-item">
+                                    <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" aria-current="page" href="{{ url_for('main.index') }}">主页</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('main.health_profile') }}">健康档案</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('main.training_board') }}">训练看板</a>
+                                </li>
+                            </ul>
+                            <ul class="navbar-nav ms-auto">
+                                {% if current_user.is_authenticated %}
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-circle me-1" viewBox="0 0 16 16">
+                                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                                            </svg>
+                                            {{ current_user.username }}
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                            <li><a class="dropdown-item" href="{{ url_for('main.health_profile') }}">我的档案</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="{{ url_for('main.logout') }}">退出登录</a></li>
+                                        </ul>
+                                    </li>
+                                {% else %}
+                                    <li class="nav-item">
+                                        <a href="{{ url_for('main.login') }}" class="btn btn-outline-primary btn-sm">登录</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+        {% endif %}
+    {% endblock %}
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category|default('info') }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+<footer class="footer mt-auto py-3 bg-light">
+    <div class="container text-center">
+        <span class="text-muted">肺癌AI筛查平台 © 2024</span>
+    </div>
+</footer>
+
+{% include '_quote_ticker.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{% block scripts %}{% endblock %}
+  </body>
+</html> 

@@ -1,0 +1,32 @@
+{% extends "_auth_layout.html" %}
+
+{% block auth_content %}
+<div class="auth-card">
+    <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-lungs-fill" viewBox="0 0 16 16">
+            <path d="M8 1a.5.5 0 0 1 .5.5v1.288A6.983 6.983 0 0 1 12 7.5a.5.5 0 0 1-1 0 5.983 5.983 0 0 0-3-5.122V1.5a.5.5 0 0 1-.5-.5zM5 0a.5.5 0 0 1 .5.5v1.288A6.983 6.983 0 0 1 8.5 7.5a.5.5 0 0 1-1 0 5.983 5.983 0 0 0-3-5.122V.5A.5.5 0 0 1 5 0zm3.5 15a.5.5 0 0 1-.5-.5v-1.288A6.983 6.983 0 0 1 4.5 7.5a.5.5 0 0 1 1 0 5.983 5.983 0 0 0 3 5.122V14.5a.5.5 0 0 1 .5.5zm3.5.5a.5.5 0 0 0-.5-.5v-1.288a6.983 6.983 0 0 0-3.5-5.187.5.5 0 0 0-1 0A5.983 5.983 0 0 1 11.5 13.212V14.5a.5.5 0 0 0 .5.5z"/>
+        </svg>
+    </div>
+    <h2>创建您的账户</h2>
+    <p class="subtitle">加入我们的平台，开始您的健康筛查之旅</p>
+
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control", placeholder="设置一个用户名") }}
+        </div>
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control", placeholder="创建一个密码") }}
+        </div>
+        <div class="mb-3">
+            {{ form.password2.label(class="form-label") }}
+            {{ form.password2(class="form-control", placeholder="确认您的密码") }}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+    <hr class="my-4">
+    <p class="text-center">已经有账户了？ <a href="{{ url_for('main.login') }}">点击此处登录！</a></p>
+</div>
+{% endblock %} 

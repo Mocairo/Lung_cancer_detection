@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% import "bootstrap-wtf.html" as wtf %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center py-5">
+    <div class="auth-card" style="max-width: 800px; text-align: left;">
+        <h2 class="text-center">第二步：上传您的CT扫描文件</h2>
+        <p class="subtitle text-center">请同时上传 <strong>.mhd</strong> 和 <strong>.raw</strong> 两个文件。</p>
+        
+        <div class="alert alert-warning" role="alert">
+            <strong>重要提示：</strong> 请确保两个文件名完全匹配 (例如, `my_scan.mhd` 和 `my_scan.raw`)。
+        </div>
+
+        <form method="POST" novalidate enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.mhd_file.label(class="form-label") }}
+                {{ form.mhd_file(class="form-control") }}
+                {% for error in form.mhd_file.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.raw_file.label(class="form-label") }}
+                {{ form.raw_file(class="form-control") }}
+                 {% for error in form.raw_file.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="d-grid">
+                 {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

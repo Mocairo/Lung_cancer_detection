@@ -1,0 +1,93 @@
+<!-- Health Quote Ticker -->
+<div id="health-quote-ticker">
+    <p id="health-quote-text"></p>
+</div>
+
+<style>
+    #health-quote-ticker {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 700px; /* Max width for the ticker */
+        background-color: rgba(241, 245, 249, 0.9); /* Light gray with transparency */
+        backdrop-filter: blur(5px); /* Frosted glass effect */
+        color: #475569; /* A softer text color */
+        padding: 10px 20px;
+        border-radius: 50rem; /* Pill shape */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        z-index: 1050;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 0.9rem;
+    }
+
+    #health-quote-ticker p {
+        margin: 0;
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    }
+
+    #health-quote-ticker p.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const quotes = [
+        `身体是灵魂的圣殿，无论那里供奉的是什么，它都应该保持强韧、美丽和清洁。——村上春树`,
+        `健康的身体乃是灵魂的客厅，有病的身体则是灵魂的禁闭室。——培根`,
+        `悲观的人虽生犹死，乐观的人永生不老。——拜伦`,
+        `健康是人生第一财富。——爱默生`,
+        `只有身体好才能学习好、工作好，才能均衡地发展。——周恩来`,
+        `忽略健康的人，就是等于在与自己的生命开玩笑。——陶行知`,
+        `一个人的身体，决不是个人的，要把它看作是社会的宝贵财富。——徐特立`,
+        `保持健康，这是对自己的义务，甚至也是对社会的义务。——富兰克林`,
+        `有规律的生活原是健康与长寿的秘诀。——巴尔扎克`,
+        `快乐最利于健康。——爱迪生`,
+        `幸福的首要条件在于健康。`,
+        `健康就是金子一样的东西。——高尔基`,
+        `有健康的身体才有健全的精神。——洛克`,
+        `午夜前一小时的睡眠等于午夜后睡三小时。`,
+        `疾病是可以感觉到的，但健康则完全不觉得。`,
+        `健康是最好的天赋，知足为最大的财富，信任为最佳的品德。——释迦牟尼`,
+        `健康是大自然所能给我们准备的最公平最珍贵的礼物。——蒙田`,
+        `疾病有成千上万种，但健康只有一种。`,
+        `保持健康是做人的责任。——斯宾诺尔`,
+        `人类所能犯的错误就是拿健康换取其他身外之物。——叔本华`,
+        `幸福十分之九是建立在健康基础上的，健康就是一切。——叔本-华`,
+        `壮志因愁减，衰容与病增。——白居易`,
+        `理想的人是品德，健康、才能三位一体的人。——木村久一`,
+        `早睡早起，使人健康、富有、明智。——富兰克林`,
+        `面色红润的健康之神在阳光里生活，在大海里游泳，在野外呼吸着清新空气。——爱默生`
+    ];
+
+    const quoteTextElement = document.getElementById('health-quote-text');
+    let currentQuoteIndex = 0;
+
+    function updateQuote() {
+        // Fade out the old quote
+        quoteTextElement.classList.remove('visible');
+
+        setTimeout(() => {
+            // Update text and fade in the new one
+            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+            quoteTextElement.textContent = quotes[currentQuoteIndex];
+            quoteTextElement.classList.add('visible');
+        }, 500); // Half a second for fade out
+    }
+
+    // Initial quote
+    quoteTextElement.textContent = quotes[currentQuoteIndex];
+    quoteTextElement.classList.add('visible');
+
+    // Change quote every 10 seconds
+    setInterval(updateQuote, 10000);
+});
+</script> 

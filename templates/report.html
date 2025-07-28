@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<style>
+    .figure-img {
+        max-height: 250px;
+        object-fit: cover;
+    }
+    @media print {
+        /* 隐藏不打印的元素 */
+        .no-print, .navbar, .btn, .historical-reports-card {
+            display: none !important;
+        }
+
+        /* 确保打印内容占满全部宽度 */
+        .col-lg-8, .col-lg-4 {
+            width: 100%;
+            flex: 0 0 auto;
+        }
+        
+        .pdf-header {
+            display: block !important;
+        }
+
+        @page {
+            margin: 1.5cm;
+        }
+
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .card {
+            page-break-inside: avoid;
+        }
+    }
+    .ai-summary-card {
+        white-space: pre-wrap; /* Allows text to wrap and respects newlines */
+        font-family: 'Georgia', serif; /* A more readable, serif font for long text */
+        line-height: 1.6;
+        background-color: #f8f9fa;
+        border-left: 5px solid #0d6efd;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<!-- PDF 页眉 -->
+<div class="pdf-header" style="display: none; margin-bottom: 2rem; border-bottom: 2px solid #dee2e6; padding-bottom: 1rem;">
+    <h1 class="h3">肺癌筛查AI报告</h1>
+    <div class="row">
+        <div class="col-6"><strong>患者:</strong> {{ current_user.username }}</div>
+        <div class="col-6"><strong>性别:</strong> {{ {'Male': '男', 'Female': '女', 'Other': '其他'}[screening.gender] if screening.gender else 'N/A' }}</div>
+    </div>
+    <div class="row">
+        <div class="col-6"><strong>扫描日期:</strong> {{ screening.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+        <div class="col-6"><strong>报告日期:</strong> {{ "now" | format_datetime }}</div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h2 class="fw-bold">分析报告</h2>
+        <div>
+            <a href="{{ url_for('main.download_report', screening_id=screening.id) }}" class="btn btn-outline-primary btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download me-1" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+                下载报告
+            </a>
+            <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer me-1" viewBox="0 0 16 16">
+                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                </svg>
+                导出
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- 左栏 -->
+        <div class="col-lg-8">
+
+            <!-- AI Summary Card -->
+            {% if screening.ai_summary %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-robot me-2" viewBox="0 0 16 16">
+                          <path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5ZM3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 0 1-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 0 1 3 9.219V8.062Zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a24.767 24.767 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25.286 25.286 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135Z"/>
+                          <path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1.5a2.5 2.5 0 0 0 2.5 2.5h9A2.5 2.5 0 0 0 15 12.5V12a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2V1.866ZM14 7.5V12a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 12V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5Z"/>
+                        </svg>
+                        AI 智能解读
+                    </h5>
+                </div>
+                <div class="card-body ai-summary-card">
+                    <p>{{ screening.ai_summary }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 核心发现 -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">核心发现与建议</h5>
+                </div>
+                <div class="card-body">
+                    {% if screening.analysis_result and screening.analysis_result.status == 'success' %}
+                        {% set num_nodules = screening.analysis_result.nodules_found %}
+                        <h6 class="card-title">总体风险评估: 
+                            {% if num_nodules == 0 %}<span class="badge bg-success">低风险</span>
+                            {% elif num_nodules > 0 %}<span class="badge bg-warning">中等风险</span>
+                            {% else %}<span class="badge bg-secondary">未知</span>
+                            {% endif %}
+                        </h6>
+                        <p class="card-text">AI 分析在您的CT扫描中发现了 <strong>{{ num_nodules }}</strong> 个可疑结节。</p>
+                        <hr>
+                        <p class="mb-0"><strong>建议操作:</strong> 
+                            {% if num_nodules == 0 %}
+                                根据本次分析，未发现可疑结节。我们建议您按照医疗服务提供者的建议继续进行定期检查。
+                            {% else %}
+                                分析发现一个或多个可能需要进一步检查的结节。<strong>请务必将此报告分享给您的医生</strong>，以获取专业的医疗意见。
+                            {% endif %}
+                        </p>
+                    {% elif screening.status == 'Failed' %}
+                        <p class="text-danger">分析失败。请查看详情面板获取更多信息。</p>
+                    {% else %}
+                        <p class="text-info">分析进行中。请稍后查看。</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 检测到的结节详情 -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">检测到的结节详情</h5>
+                </div>
+                <div class="card-body">
+                    {% if screening.analysis_result and screening.analysis_result.nodules %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>位置 (x,y,z)</th>
+                                        <th>平均直径 (mm)</th>
+                                        <th>体积 (mm³)</th>
+                                        <th>结节概率</th>
+                                        <th>恶性肿瘤概率</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for nodule in screening.analysis_result.nodules %}
+                                    <tr>
+                                        <td>{{ nodule.lesion_id }}</td>
+                                        <td>{{ nodule.position }}</td>
+                                        <td>{{ nodule.diameter_mm }}</td>
+                                        <td>{{ nodule.size_mm3 }}</td>
+                                        <td><span class="badge bg-info">{{ "%.1f%%" % (nodule.nodule_malignancy_prob * 100) }}</span></td>
+                                        <td><span class="badge bg-danger">{{ "%.1f%%" % (nodule.tumor_malignancy_prob * 100) }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p>本次扫描未检测到可疑结节。</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 可视化分析 -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                     <h5 class="mb-0">可视化分析</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-4">
+                         <h6>2D 切片 (顶/中/底)</h6>
+                        <div class="col-md-4">
+                             <figure class="figure">
+                                <img src="{{ url_for('static', filename='reports/' + screening.image_2d_slice_top) if screening.image_2d_slice_top else '' }}" class="figure-img img-fluid rounded" alt="顶部 2D 切片">
+                                <figcaption class="figure-caption">顶部</figcaption>
+                            </figure>
+                        </div>
+                        <div class="col-md-4">
+                             <figure class="figure">
+                                <img src="{{ url_for('static', filename='reports/' + screening.image_2d_slice_center) if screening.image_2d_slice_center else '' }}" class="figure-img img-fluid rounded" alt="中部 2D 切片">
+                                <figcaption class="figure-caption">中部</figcaption>
+                            </figure>
+                        </div>
+                        <div class="col-md-4">
+                             <figure class="figure">
+                                <img src="{{ url_for('static', filename='reports/' + screening.image_2d_slice_bottom) if screening.image_2d_slice_bottom else '' }}" class="figure-img img-fluid rounded" alt="底部 2D 切片">
+                                <figcaption class="figure-caption">底部</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center mt-4">
+                        <h6>3D 重建</h6>
+                        <div class="col-md-4">
+                            <figure class="figure">
+                                <img src="{{ url_for('static', filename='reports/' + screening.image_3d_default) if screening.image_3d_default else '' }}" class="figure-img img-fluid rounded" alt="3D 默认容积">
+                                <figcaption class="figure-caption">默认容积</figcaption>
+                            </figure>
+                        </div>
+                        <div class="col-md-4">
+                             <figure class="figure">
+                                <img src="{{ url_for('static', filename='reports/' + screening.image_3d_mip) if screening.image_3d_mip else '' }}" class="figure-img img-fluid rounded" alt="3D 最大密度投影">
+                                <figcaption class="figure-caption">最大密度投影</figcaption>
+                            </figure>
+                        </div>
+                        <div class="col-md-4">
+                             <figure class="figure">
+                                <img src="{{ url_for('static', filename='reports/' + screening.image_3d_iso) if screening.image_3d_iso else '' }}" class="figure-img img-fluid rounded" alt="3D 等值面">
+                                <figcaption class="figure-caption">等值面</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右栏 -->
+        <div class="col-lg-4">
+            <!-- 筛查详情 -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">筛查详情</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>日期:</strong> {{ screening.timestamp.strftime('%Y-%m-%d %H:%M') }}</li>
+                    <li class="list-group-item"><strong>原始文件名:</strong> {{ screening.original_filename }}</li>
+                    <li class="list-group-item"><strong>状态:</strong> <span class="badge bg-success">{{ screening.status }}</span></li>
+                </ul>
+            </div>
+
+            <!-- 历史报告 -->
+            <div class="card shadow-sm mb-4 historical-reports-card">
+                <div class="card-header">
+                    <h5 class="mb-0">历史报告</h5>
+                </div>
+                {% if historical_screenings %}
+                <div class="list-group list-group-flush">
+                    {% for old_screening in historical_screenings %}
+                        <a href="{{ url_for('main.report', screening_id=old_screening.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            {{ old_screening.timestamp.strftime('%Y-%m-%d 报告') }}
+                            <span class="badge bg-secondary rounded-pill">{{ old_screening.analysis_result.nodules_found|default(0, true) }} 结节</span>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card-body">
+                    <p class="small text-muted">未找到过往报告。</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 免责声明 -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">免责声明</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small">本报告由自动化AI系统生成，仅供参考，不能作为医疗诊断依据。请务必咨询您的医生以获取专业意见。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

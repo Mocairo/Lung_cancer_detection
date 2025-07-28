@@ -1,0 +1,15 @@
+{% macro quick_form(form) %}
+<form method="POST" novalidate enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    {% for field in form if field.widget.input_type != 'hidden' %}
+    <div class="form-group mb-3">
+        {{ field.label(class="form-label") }}
+        {{ field(class="form-control") }}
+        {% for error in field.errors %}
+        <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endmacro %} 

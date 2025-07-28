@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">健康档案</h2>
+        <div>
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">返回主页</a>
+        </div>
+    </div>
+    <p>在这里您可以找到所有过往的筛查记录。选择两份报告即可对随时间发生的变化进行比较。</p>
+    
+    {% if screenings and screenings|length >= 2 %}
+    <form action="{{ url_for('main.compare_reports') }}" method="GET" id="compareForm">
+        <button type="submit" id="compareBtn" class="btn btn-success mb-3" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat me-1" viewBox="0 0 16 16">
+                <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.5a.5.5 0 0 1 0-1h1.417A5.002 5.002 0 0 0 8 3zM3.5 12a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5z"/>
+            </svg>
+            比较选定报告
+        </button>
+
+        <div class="list-group">
+            {% for screening in screenings %}
+            <label class="list-group-item d-flex gap-3">
+                <input class="form-check-input flex-shrink-0" type="checkbox" name="report_ids" value="{{ screening.id }}" style="font-size: 1.375em;">
+                <span class="pt-1 form-checked-content">
+                    <strong>筛查于 {{ screening.timestamp.strftime('%Y-%m-%d %H:%M') }}</strong>
+                    <small class="d-block text-muted">
+                        文件: {{ screening.original_filename }} | 
+                        状态: <span class="badge 
+                        {% if screening.status == 'Complete' %}bg-success
+                        {% elif screening.status == 'Failed' %}bg-danger
+                        {% else %}bg-secondary
+                        {% endif %}">{{ screening.status }}</span> |
+                        结节: {{ screening.analysis_result.nodules_found|default('N/A') }}
+                    </small>
+                </span>
+            </label>
+            {% endfor %}
+        </div>
+    </form>
+    {% elif screenings %}
+        <div class="alert alert-info" role="alert">
+           您只有一个筛查记录。您需要至少两条记录才能使用比较功能。
+        </div>
+        <div class="list-group">
+            {% for screening in screenings %}
+            <a href="{{ url_for('main.report', screening_id=screening.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">筛查于 {{ screening.timestamp.strftime('%Y-%m-%d %H:%M') }}</h5>
+                    <small>状态: <span class="badge 
+                        {% if screening.status == 'Complete' %}bg-success
+                        {% elif screening.status == 'Failed' %}bg-danger
+                        {% else %}bg-secondary
+                        {% endif %}">{{ screening.status }}</span></small>
+                </div>
+                <p class="mb-1">已上传文件: {{ screening.original_filename }}</p>
+                <small>点击查看报告。</small>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        您还没有任何筛查历史。开始您的第一次筛查，以建立您的健康档案。
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('compareForm');
+    if (form) {
+        const compareBtn = document.getElementById('compareBtn');
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+
+        form.addEventListener('change', function () {
+            const checkedCount = form.querySelectorAll('input[type="checkbox"]:checked').length;
+            compareBtn.disabled = (checkedCount !== 2);
+        });
+    }
+});
+</script>
+{% endblock %} 
